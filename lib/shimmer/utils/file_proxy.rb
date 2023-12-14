@@ -27,8 +27,9 @@ module Shimmer
     end
 
     class << self
-      def message_verifier
-        @message_verifier ||= ApplicationRecord.signed_id_verifier
+      def restore(id)
+        blob_id, resize = message_verifier.verified(id)
+        new blob_id: blob_id, resize: resize
       end
     end
 
