@@ -8,9 +8,13 @@ module Shimmer
     delegate :content_type, :filename, to: :blob
 
     class << self
-      def restore(signed_id)
-        blob = ActiveStorage::Blob.find_signed(signed_id)
-        new(blob_id: blob.id, resize: nil)
+      def restore(id)
+        blob_id, resize = message_verifier.verified(id)
+        new blob_id: blob_id, resize: resize
+      end
+
+      def message_verifier
+        @message_verifier ||= ApplicationRecord.signed_id_verifier
       end
     end
 
@@ -25,12 +29,6 @@ module Shimmer
       end
       @resize = resize
       @quality = quality
-    end
-
-    class << self
-      def message_verifier
-        @message_verifier ||= ApplicationRecord.signed_id_verifier
-      end
     end
 
     def path
@@ -50,7 +48,9 @@ module Shimmer
     end
 
     def variant
-      transformation_options = {resize_to_limit: resize, format: :webp}
+      resize_array = process_resize(resize)
+
+      transformation_options = {resize_to_limit: resize_array, format: :webp}
       transformation_options[:quality] = quality if quality
 
       @variant ||= resizeable ? blob.representation(transformation_options).processed : blob
@@ -69,6 +69,18 @@ module Shimmer
     end
 
     private
+
+    def process_resize(resize)
+      return nil unless resize
+
+      if resize.is_a?(String)
+        # Split the string and convert to integers. If height is missing, it will be nil
+        dimensions = resize.split("x").map { |dim| dim.empty? ? nil : dim.to_i }
+        (dimensions.length == 1) ? [dimensions.first, nil] : dimensions
+      elsif resize.is_a?(Array)
+        resize
+      end
+    end
 
     def id
       @id ||= message_verifier.generate([blob_id, resize, quality])
