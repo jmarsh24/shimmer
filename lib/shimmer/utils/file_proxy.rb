@@ -32,11 +32,11 @@ module Shimmer
     end
 
     def path
-      Rails.application.routes.url_helpers.file_path(id, locale: nil)
+      Rails.application.routes.url_helpers.file_path("#{id}.avif", locale: nil)
     end
 
     def url(protocol: Rails.env.production? ? :https : :http)
-      Rails.application.routes.url_helpers.file_url(id, locale: nil, protocol: protocol)
+      Rails.application.routes.url_helpers.file_url("#{id}.avif", locale: nil, protocol: protocol)
     end
 
     def blob
