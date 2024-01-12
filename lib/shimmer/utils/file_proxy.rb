@@ -87,7 +87,7 @@ module Shimmer
     end
 
     def file_extension
-      resizeable ? "avif" : blob.filename.extension_with_delimiter
+      resizeable ? "avif" : content_type.split("/").last
     end
   end
 end
