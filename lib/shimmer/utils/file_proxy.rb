@@ -32,11 +32,11 @@ module Shimmer
     end
 
     def path
-      Rails.application.routes.url_helpers.file_path("#{id}.avif", locale: nil)
+      Rails.application.routes.url_helpers.file_path("#{id}.#{file_extension}", locale: nil)
     end
 
     def url(protocol: Rails.env.production? ? :https : :http)
-      Rails.application.routes.url_helpers.file_url("#{id}.avif", locale: nil, protocol: protocol)
+      Rails.application.routes.url_helpers.file_url("#{id}.#{file_extension}", locale: nil, protocol: protocol)
     end
 
     def blob
@@ -84,6 +84,10 @@ module Shimmer
 
     def id
       @id ||= message_verifier.generate([blob_id, resize, quality])
+    end
+
+    def file_extension
+      resizeable ? "avif" : blob.filename.extension_with_delimiter
     end
   end
 end
