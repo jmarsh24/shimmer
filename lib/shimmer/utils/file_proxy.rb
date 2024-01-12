@@ -50,18 +50,18 @@ module Shimmer
     def variant
       resize_array = process_resize(resize)
 
-      transformation_options = {resize_to_limit: resize_array, format: :webp}
+      transformation_options = {resize_to_limit: resize_array, format: :avif}
       transformation_options[:quality] = quality if quality
 
       @variant ||= resizeable ? blob.representation(transformation_options).processed : blob
     end
 
     def variant_content_type
-      resizeable ? "image/webp" : content_type
+      resizeable ? "image/avif" : content_type
     end
 
     def variant_filename
-      resizeable ? "#{filename.base}.webp" : filename.to_s
+      resizeable ? "#{filename.base}.avif" : filename.to_s
     end
 
     def file
